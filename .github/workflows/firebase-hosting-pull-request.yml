@@ -1,4 +1,5 @@
 # Deploy Flutter Web (WASM) preview to Firebase Hosting on PR
+# Uses FVM config to set Flutter version
 # https://github.com/firebase/firebase-tools
 
 name: Deploy to Firebase Hosting on PR
@@ -16,10 +17,26 @@ jobs:
       # Checkout source code
       - uses: actions/checkout@v4
 
-      # Setup Flutter
+      # Read Flutter version from .fvm/fvm_config.json
+      - name: Read Flutter version
+        id: flutter_version
+        run: |
+          VERSION=$(jq -r '.flutterSdkVersion' .fvm/fvm_config.json)
+          echo "flutter-version=$VERSION" >> $GITHUB_OUTPUT
+
+      # Setup Flutter with detected version
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.24.0" # set your Flutter version
+          flutter-version: ${{ steps.flutter_version.outputs.flutter-version }}
+
+      # Cache Flutter pub packages
+      - name: Cache Flutter pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
 
       # Get Flutter dependencies
       - run: flutter pub get
