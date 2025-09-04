@@ -262,6 +262,9 @@ class _StressTestPageState extends State<StressTestPage> {
         case "DELETE":
           response = await http.delete(Uri.parse(url), headers: headers);
           break;
+        case "PATCH":
+          response = await http.patch(Uri.parse(url), headers: headers);
+          break;
         default:
           throw Exception("Unsupported method: $_method");
       }
@@ -406,6 +409,7 @@ class _StressTestPageState extends State<StressTestPage> {
                                   "POST",
                                   "PUT",
                                   "DELETE",
+                                  "PATCH",
                                 ].map((m) => DropdownMenuItem(value: m, child: Text(m))).toList(),
                                 onChanged: (val) {
                                   if (val != null) setState(() => _method = val);
